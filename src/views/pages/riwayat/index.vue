@@ -52,8 +52,8 @@
                             </td>
                         </tr>
                     </tbody>
-                    <tbody v-for="(data, index) in riwayat" :key="index">
-                        <tr>
+                    <tbody v-else>
+                        <tr v-for="(data, index) in riwayat" :key="index">
                             <td>
                                 {{ index + 1 }}
                             </td>
@@ -89,7 +89,7 @@
             </div>
         </div>
     </div>
-    <ModalComponent id="editKategori">
+    <!-- <ModalComponent id="editKategori">
         <template #modal>
             <Label>Nama</Label>
             <input type="text" :value="detailRiwayat.barang.nama" readonly class="form-control">
@@ -104,7 +104,7 @@
                 Total Harga: {{ detailRiwayat.totalBeli }}
             </p>
         </template>
-    </ModalComponent>
+    </ModalComponent> -->
 </template>
 <script>
 import ModalComponent from '@/components/form/modalcomponent.vue'
@@ -114,9 +114,8 @@ export default {
         return {
             riwayat: [],
             detailRiwayat: [],
-            name: '',
             isLoading: false,
-            id: ''
+            id: '',
         }
     },
     created() {
@@ -147,9 +146,7 @@ export default {
             let url = [
                 `riwayat/${id}`, {}
             ]
-            this.isLoading = true
             this.$store.dispatch(type, url).then((result) => {
-                this.isLoading = false
                 this.detailRiwayat = result.data[0]
             }).catch((err) => {
                 console.log(err);
