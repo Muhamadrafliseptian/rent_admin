@@ -3,9 +3,6 @@
         <div class="card-header py-4">
             <div class="d-flex justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">Data {{ $route.name }}</h6>
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#tambahKategori">
-                    Tambah Dataa
-                </button>
             </div>
         </div>
         <div class="card-body">
@@ -16,7 +13,22 @@
                             no
                         </th>
                         <th>
+                            invoice number
+                        </th>
+                        <th>
                             nama
+                        </th>
+                        <th>
+                            alamat
+                        </th>
+                        <th>
+                            harga
+                        </th>
+                        <th>
+                            status
+                        </th>
+                        <th>
+                            tanggal
                         </th>
                         <th>
                             aksi
@@ -29,7 +41,7 @@
                             </td>
                         </tr>
                     </tbody>
-                    <tbody v-else-if="!kategori.length">
+                    <tbody v-else-if="!riwayat.length">
                         <tr>
                             <td colspan="12" class="text-center">
                                 <div class="alert alert-info w-100">
@@ -40,22 +52,34 @@
                             </td>
                         </tr>
                     </tbody>
-                    <tbody v-for="(data, index) in kategori" :key="index">
+                    <tbody v-for="(data, index) in riwayat" :key="index">
                         <tr>
                             <td>
                                 {{ index + 1 }}
                             </td>
                             <td>
-                                {{ data.name }}
+                                {{ data.invoice }}
+                            </td>
+                            <td>
+                                {{ data.user.nama }}
+                            </td>
+                            <td>
+                                {{ data.user.alamat }}
+                            </td>
+                            <td>
+                                {{ data.jumlahHarga }}
+                            </td>
+                            <td>
+                                {{ data.status }}
+                            </td>
+                            <td>
+                                {{ data.tanggal }}
                             </td>
                             <td>
                                 <div class="d-flex justify-content-start">
                                     <button data-toggle="modal" data-target="#editKategori"
-                                        class="btn btn-warning btn-sm mr-2" @click="getId(data.id)">
+                                        class="btn btn-warning btn-sm mr-2" @click="getDetailRiwayat(data.id)">
                                         edit
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" @click="deleteKategori(data.id)">
-                                        delete
                                     </button>
                                 </div>
                             </td>
@@ -65,22 +89,20 @@
             </div>
         </div>
     </div>
-    <ModalComponent id="tambahKategori">
-        <template #modal>
-            <Label>Nama</Label>
-            <input type="text" v-model="name" class="form-control">
-            <button class="btn btn-sm btn-primary mt-3" @click="postKategori">
-                submit
-            </button>
-        </template>
-    </ModalComponent>
     <ModalComponent id="editKategori">
         <template #modal>
             <Label>Nama</Label>
-            <input type="text" v-model="name" class="form-control">
-            <button class="btn btn-sm btn-primary mt-3" @click="submitEdit">
-                submit
-            </button>
+            <input type="text" :value="detailRiwayat.barang.nama" readonly class="form-control">
+            <Label>Deskripsi</Label>
+            <input type="text" :value="detailRiwayat.barang.deskripsi" readonly class="form-control">
+            <Label>Harga Satuan</Label>
+            <input type="text" :value="detailRiwayat.barang.harga" readonly class="form-control">
+            <p class="mt-2 mb-0">
+                Total Qty: {{ detailRiwayat.qty }}
+            </p>
+            <p class="mt-1">
+                Total Harga: {{ detailRiwayat.totalBeli }}
+            </p>
         </template>
     </ModalComponent>
 </template>
@@ -90,14 +112,15 @@ import LoadingIndicator from '@/components/partials-dashboard/LoadingComponent.v
 export default {
     data() {
         return {
-            kategori: [],
+            riwayat: [],
+            detailRiwayat: [],
             name: '',
             isLoading: false,
             id: ''
         }
     },
     created() {
-        this.getKategori()
+        this.getRiwayat()
     },
     components: {
         LoadingIndicator, ModalComponent
@@ -106,69 +129,30 @@ export default {
         getId(id){
             this.id = id
         },
-        getKategori() {
+        getRiwayat() {
             let type = "getData"
             let url = [
-                "kategori", {}
+                "riwayat", {}
             ]
             this.isLoading = true
             this.$store.dispatch(type, url).then((result) => {
                 this.isLoading = false
-                this.kategori = result.data
+                this.riwayat = result.data
             }).catch((err) => {
                 console.log(err);
             })
         },
-        submitEdit(){
-            let type = "putData"
+        getDetailRiwayat(id) {
+            let type = "getData"
             let url = [
-                `kategori/${this.id}`, {
-                    name: this.name
-                }, {}
-            ]
-            this.$store.dispatch(type, url).then((result)=>{
-                this.handleSuccess('berhasil ubah data')
-                this.getKategori()
-            }).catch((err)=>{
-                console.log(err);
-            })
-        },
-        postKategori() {
-            let type = "postData"
-            let url = [
-                "kategori", {
-                    name: this.name
-                }, {}
+                `riwayat/${id}`, {}
             ]
             this.isLoading = true
             this.$store.dispatch(type, url).then((result) => {
-                this.handleSuccess('berhasil tambah data')
-                this.getKategori()
+                this.isLoading = false
+                this.detailRiwayat = result.data[0]
             }).catch((err) => {
                 console.log(err);
-            })
-        },
-        deleteKategori(id) {
-            let type = "deleteData"
-            let url = [
-                `kategori`, id, {}
-            ]
-            this.$swal({
-                icon: 'question',
-                title: 'apakah ingin menghapus data kategori',
-                showDenyButton: true,
-                showCancelButton: false,
-                confirmButtonText: "Ya, Hapus",
-                denyButtonText: "Jangan Hapus"
-            }).then((results) => {
-                if (results.isConfirmed) {
-                    this.$store.dispatch(type, url).then((response) => {
-                        this.handleSuccess('berhasil hapus kategori')
-                        this.getKategori()
-                    }).catch((err) => {
-                        console.log(err);
-                    })
-                }
             })
         },
         handleSuccess(message) {

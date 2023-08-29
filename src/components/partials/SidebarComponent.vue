@@ -31,8 +31,8 @@
                     <router-link :to="{ name: 'Barang' }" class="collapse-item">
                         Barang
                     </router-link>
-                    <router-link :to="{ name: 'Grouping Barang' }" class="collapse-item">
-                        Grouping Barang
+                    <router-link :to="{ name: 'Riwayat Transaksi' }" class="collapse-item">
+                        Riwayat Transaksi
                     </router-link>
                 </div>
             </div>

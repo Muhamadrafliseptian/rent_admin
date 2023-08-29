@@ -109,7 +109,7 @@ export default{
                 name: '',
                 email: '',
                 password: '',
-                role_id: '2'
+                role_id: ''
             },
             isLoading: false
         }
@@ -134,7 +134,12 @@ export default{
         postAdmin(){
             let type = "postData"
             let url = [
-                "user/admin", this.form, {}
+                "user/admin", {
+                    name: this.form.name,
+                    email: this.form.email,
+                    password: this.form.password,
+                    role_id: 2
+                }, {}
             ]
             this.$store.dispatch(type, url).then((result)=>{
                 this.handleSuccess('berhasil tambah admin')
